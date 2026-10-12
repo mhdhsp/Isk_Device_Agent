@@ -22,53 +22,51 @@ import userService from "../../services/userService";
 const { Title } = Typography;
 const { Option } = Select;
 
+/**
+ * Returns the 5th of the month that follows the given start date's month.
+ * Examples:
+ *   Jan  3  → Feb  5
+ *   Jan 20  → Feb  5
+ *   Dec 10  → Jan  5  (next year)
+ */
+function nextFifth(startDate) {
+    return dayjs(startDate).add(1, "month").date(5).startOf("day");
+}
+
 function NewUser() {
 
-
     const [gymDuration, setGymDuration] = useState(1);
-    const [martialDuration, setMartialDuration] = useState(1);
     const [form] = Form.useForm();
+
     const gymDeviceEnabled =
         Form.useWatch("RegisteredInGymDevice", form);
 
     const martialDeviceEnabled =
         Form.useWatch("RegisteredInMartialArtsDevice", form);
+
     const navigate = useNavigate();
 
-
+    // ── Gym: duration-based end date (unchanged) ────────────────────────────
     const updateGymEndDate = (months) => {
-
-        const start =
-            form.getFieldValue("GymMembershipStartDate");
-
+        const start = form.getFieldValue("GymMembershipStartDate");
         if (!start) return;
-
         form.setFieldValue(
             "GymMembershipEndDate",
             dayjs(start).add(months, "month")
         );
-
     };
 
-
-    const updateMartialEndDate = (months) => {
-
-        const start =
-            form.getFieldValue("MartialMembershipStartDate");
-
-        if (!start) return;
-
+    // ── Martial: always snap end date to the next 5th ───────────────────────
+    const updateMartialEndDate = (startDate) => {
+        if (!startDate) return;
         form.setFieldValue(
             "MartialMembershipEndDate",
-            dayjs(start).add(months, "month")
+            nextFifth(startDate)
         );
-
     };
+
     const onFinish = async (values) => {
-
-
         try {
-
             const payload = {
 
                 // Personal Information
@@ -116,7 +114,7 @@ function NewUser() {
                 // Membership
                 Membership: {
 
-                    MembershipName: "hard coded",
+                    MembershipName: values.MembershipName || "",
 
                     // Gym Membership
                     GymMembershipStartDate:
@@ -181,8 +179,6 @@ function NewUser() {
                 }
             };
 
-            console.log("Payload", payload);
-
             await userService.createUser(payload);
 
             message.success("User created successfully");
@@ -191,11 +187,8 @@ function NewUser() {
 
         }
         catch (error) {
-
             console.error(error);
-
             message.error("Failed to create user.");
-
         }
     };
 
@@ -229,215 +222,149 @@ function NewUser() {
                         <Form.Item
                             label="Full Name"
                             name="FullName"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: "Enter Full Name"
-                                }
-                            ]}
+                            rules={[{ required: true, message: "Enter Full Name" }]}
                         >
                             <Input />
                         </Form.Item>
                     </Col>
 
                     <Col span={12}>
-                        <Form.Item
-                            label="Occupation"
-                            name="Occupation"
-                        >
+                        <Form.Item label="Occupation" name="Occupation">
                             <Input />
                         </Form.Item>
                     </Col>
 
                     <Col span={12}>
-                        <Form.Item
-                            label="House Name"
-                            name="HouseName"
-                        >
+                        <Form.Item label="House Name" name="HouseName">
                             <Input />
                         </Form.Item>
                     </Col>
 
                     <Col span={12}>
-                        <Form.Item
-                            label="Place"
-                            name="Place"
-                        >
+                        <Form.Item label="Place" name="Place">
                             <Input />
                         </Form.Item>
                     </Col>
 
                     <Col span={8}>
-                        <Form.Item
-                            label="District"
-                            name="District"
-                        >
+                        <Form.Item label="District" name="District">
                             <Input />
                         </Form.Item>
                     </Col>
 
                     <Col span={8}>
-                        <Form.Item
-                            label="State"
-                            name="State"
-                        >
+                        <Form.Item label="State" name="State">
                             <Input />
                         </Form.Item>
                     </Col>
 
                     <Col span={8}>
-                        <Form.Item
-                            label="Country"
-                            name="Country"
-                        >
+                        <Form.Item label="Country" name="Country">
                             <Input />
                         </Form.Item>
                     </Col>
 
                     <Col span={8}>
-                        <Form.Item
-                            label="Pin Code"
-                            name="PinCode"
-                        >
+                        <Form.Item label="Pin Code" name="PinCode">
                             <Input />
                         </Form.Item>
                     </Col>
 
                     <Col span={8}>
-                        <Form.Item
-                            label="Date of Birth"
-                            name="DateOfBirth"
-                        >
-                            <DatePicker
-                                style={{ width: "100%" }}
-                            />
+                        <Form.Item label="Date of Birth" name="DateOfBirth">
+                            <DatePicker style={{ width: "100%" }} />
                         </Form.Item>
                     </Col>
 
                     <Col span={8}>
-                        <Form.Item
-                            label="Gender"
-                            name="Gender"
-                        >
+                        <Form.Item label="Gender" name="Gender">
                             <Select>
-
-                                <Option value="Male">
-                                    Male
-                                </Option>
-
-                                <Option value="Female">
-                                    Female
-                                </Option>
-
+                                <Option value="Male">Male</Option>
+                                <Option value="Female">Female</Option>
                             </Select>
                         </Form.Item>
                     </Col>
 
                     <Col span={8}>
-                        <Form.Item
-                            label="Blood Group"
-                            name="BloodGroup"
-                        >
+                        <Form.Item label="Blood Group" name="BloodGroup">
                             <Input />
                         </Form.Item>
                     </Col>
 
                     <Col span={8}>
-                        <Form.Item
-                            label="Height"
-                            name="Height"
-                        >
+                        <Form.Item label="Height" name="Height">
                             <Input />
                         </Form.Item>
                     </Col>
 
                     <Col span={8}>
-                        <Form.Item
-                            label="Weight"
-                            name="Weight"
-                        >
+                        <Form.Item label="Weight" name="Weight">
                             <Input />
                         </Form.Item>
                     </Col>
 
                     <Col span={8}>
-                        <Form.Item
-                            label="Mobile"
-                            name="MobileNumber"
-                        >
+                        <Form.Item label="Mobile" name="MobileNumber">
                             <Input />
                         </Form.Item>
                     </Col>
 
                     <Col span={8}>
-                        <Form.Item
-                            label="WhatsApp"
-                            name="WhatsAppNumber"
-                        >
+                        <Form.Item label="WhatsApp" name="WhatsAppNumber">
                             <Input />
                         </Form.Item>
                     </Col>
 
                     <Col span={16}>
-                        <Form.Item
-                            label="Email"
-                            name="Email"
-                        >
+                        <Form.Item label="Email" name="Email">
                             <Input />
                         </Form.Item>
                     </Col>
 
                     <Col span={12}>
-                        <Form.Item
-                            label="Emergency Contact"
-                            name="EmergencyContactName"
-                        >
+                        <Form.Item label="Emergency Contact" name="EmergencyContactName">
                             <Input />
                         </Form.Item>
                     </Col>
 
                     <Col span={12}>
-                        <Form.Item
-                            label="Emergency Number"
-                            name="EmergencyContactNumber"
-                        >
+                        <Form.Item label="Emergency Number" name="EmergencyContactNumber">
                             <Input />
                         </Form.Item>
                     </Col>
-
-
 
                     <Col span={24}>
+                        <Form.Item label="Remarks" name="Remarks">
+                            <Input.TextArea rows={4} />
+                        </Form.Item>
+                    </Col>
+
+                    <Col span={12}>
                         <Form.Item
-                            label="Remarks"
-                            name="Remarks"
+                            label="Membership Name"
+                            name="MembershipName"
+                            rules={[{
+                                required: true,
+                                message: "Enter a membership name (e.g. Monthly, Annual)"
+                            }]}
                         >
-                            <Input.TextArea
-                                rows={4}
-                            />
+                            <Input placeholder="e.g. Monthly, Annual, 3 Months" />
                         </Form.Item>
                     </Col>
 
                     <Col span={6}>
-                        <Form.Item
-                            label="Enabled"
-                            name="IsEnabled"
-                            valuePropName="checked"
-                        >
+                        <Form.Item label="Enabled" name="IsEnabled" valuePropName="checked">
                             <Switch />
                         </Form.Item>
                     </Col>
 
                     <Col span={6}>
-                        <Form.Item
-                            label="Face Template"
-                            name="HasFaceTemplate"
-                            valuePropName="checked"
-                        >
+                        <Form.Item label="Face Template" name="HasFaceTemplate" valuePropName="checked">
                             <Switch />
                         </Form.Item>
                     </Col>
 
+                    {/* ── GYM DEVICE (logic unchanged) ─────────────────────────── */}
                     <Col span={24}>
                         <Card
                             title="Gym Device Registration"
@@ -455,7 +382,6 @@ function NewUser() {
 
                             {gymDeviceEnabled && (
                                 <>
-
                                     <Row gutter={16}>
 
                                         <Col xs={24} md={12}>
@@ -472,14 +398,13 @@ function NewUser() {
                                                 label="Membership Start"
                                                 name="GymMembershipStartDate"
                                             >
+                                                {/* Past dates allowed — no disabledDate */}
                                                 <DatePicker
                                                     style={{ width: "100%" }}
                                                     onChange={() => {
-
                                                         if (gymDuration !== "custom") {
                                                             updateGymEndDate(gymDuration);
                                                         }
-
                                                     }}
                                                 />
                                             </Form.Item>
@@ -491,41 +416,22 @@ function NewUser() {
 
                                         <Col xs={24} md={12}>
                                             <Form.Item label="Duration">
-
                                                 <Radio.Group
                                                     value={gymDuration}
                                                     buttonStyle="solid"
                                                     onChange={(e) => {
-
                                                         const value = e.target.value;
-
                                                         setGymDuration(value);
-
                                                         if (value !== "custom") {
                                                             updateGymEndDate(value);
                                                         }
-
                                                     }}
                                                 >
-
-                                                    <Radio.Button value={1}>
-                                                        1 Month
-                                                    </Radio.Button>
-
-                                                    <Radio.Button value={2}>
-                                                        2 Months
-                                                    </Radio.Button>
-
-                                                    <Radio.Button value={3}>
-                                                        3 Months
-                                                    </Radio.Button>
-
-                                                    <Radio.Button value="custom">
-                                                        Custom
-                                                    </Radio.Button>
-
+                                                    <Radio.Button value={1}>1 Month</Radio.Button>
+                                                    <Radio.Button value={2}>2 Months</Radio.Button>
+                                                    <Radio.Button value={3}>3 Months</Radio.Button>
+                                                    <Radio.Button value="custom">Custom</Radio.Button>
                                                 </Radio.Group>
-
                                             </Form.Item>
                                         </Col>
 
@@ -542,14 +448,13 @@ function NewUser() {
                                         </Col>
 
                                     </Row>
-
                                 </>
                             )}
 
                         </Card>
                     </Col>
 
-
+                    {/* ── MARTIAL ARTS DEVICE (end date = next 5th) ────────────── */}
                     <Col span={24}>
                         <Card
                             title="Martial Arts Device Registration"
@@ -566,7 +471,6 @@ function NewUser() {
 
                             {martialDeviceEnabled && (
                                 <>
-
                                     <Row gutter={16}>
 
                                         <Col xs={24} md={12}>
@@ -583,15 +487,10 @@ function NewUser() {
                                                 label="Membership Start"
                                                 name="MartialMembershipStartDate"
                                             >
+                                                {/* Past dates allowed — no disabledDate */}
                                                 <DatePicker
                                                     style={{ width: "100%" }}
-                                                    onChange={() => {
-
-                                                        if (martialDuration !== "custom") {
-                                                            updateMartialEndDate(martialDuration);
-                                                        }
-
-                                                    }}
+                                                    onChange={(date) => updateMartialEndDate(date)}
                                                 />
                                             </Form.Item>
                                         </Col>
@@ -601,59 +500,30 @@ function NewUser() {
                                     <Row gutter={16}>
 
                                         <Col xs={24} md={12}>
-                                            <Form.Item label="Duration">
-
-                                                <Radio.Group
-                                                    value={martialDuration}
-                                                    buttonStyle="solid"
-                                                    onChange={(e) => {
-
-                                                        const value = e.target.value;
-
-                                                        setMartialDuration(value);
-
-                                                        if (value !== "custom") {
-                                                            updateMartialEndDate(value);
-                                                        }
-
-                                                    }}
-                                                >
-
-                                                    <Radio.Button value={1}>
-                                                        1 Month
-                                                    </Radio.Button>
-
-                                                    <Radio.Button value={2}>
-                                                        2 Months
-                                                    </Radio.Button>
-
-                                                    <Radio.Button value={3}>
-                                                        3 Months
-                                                    </Radio.Button>
-
-                                                    <Radio.Button value="custom">
-                                                        Custom
-                                                    </Radio.Button>
-
-                                                </Radio.Group>
-
+                                            {/* Informational label — end date is fixed to the next 5th */}
+                                            <Form.Item label="End Date Rule">
+                                                <Input
+                                                    disabled
+                                                    value="Expires on the 5th of next month"
+                                                    style={{ color: "#595959" }}
+                                                />
                                             </Form.Item>
                                         </Col>
 
                                         <Col xs={24} md={12}>
                                             <Form.Item
-                                                label="Membership End"
+                                                label="Membership End (auto)"
                                                 name="MartialMembershipEndDate"
                                             >
+                                                {/* Read-only — computed from start date */}
                                                 <DatePicker
                                                     style={{ width: "100%" }}
-                                                    disabled={martialDuration !== "custom"}
+                                                    disabled
                                                 />
                                             </Form.Item>
                                         </Col>
 
                                     </Row>
-
                                 </>
                             )}
 
@@ -663,14 +533,9 @@ function NewUser() {
                 </Row>
 
                 <Form.Item>
-
-                    <Button
-                        type="primary"
-                        htmlType="submit"
-                    >
+                    <Button type="primary" htmlType="submit">
                         Create Member
                     </Button>
-
                 </Form.Item>
 
             </Form>

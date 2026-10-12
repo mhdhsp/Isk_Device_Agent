@@ -13,7 +13,6 @@ namespace Isk.API.Repositories
             int userId,
             NewMembershipDto membership)
         {
-            membership.MembershipName = "Hello from Insert method";
             const string sql = @"
 INSERT INTO memberships
 (

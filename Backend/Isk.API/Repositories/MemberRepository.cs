@@ -106,7 +106,7 @@ namespace Isk.API.Repositories
                                 @"UPDATE Users 
                                     SET GymDeviceUserId = NULL,
                                         RegisteredInGymDevice = FALSE
-                        `           WHERE Id = @Id",
+                                    WHERE Id = @Id",
                                 new { Id = userId },
                                 transaction);
 

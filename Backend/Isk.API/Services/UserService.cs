@@ -28,7 +28,7 @@ namespace Isk.API.Services
             try
             {
                 var users = _memberRepository.GetAll();
-                if (users == null && !users.Any())
+                if (users == null || !users.Any())
                 {
                     return new CommonResponse
                     {

@@ -124,12 +124,13 @@ function MartialUsers() {
 
     };
 
-    const unblockMartialUser = async (userId) => {
+    // startDate and endDate come from the enable-modal inside UserProfileDrawer
+    const unblockMartialUser = async (userId, startDate, endDate) => {
 
         try {
 
             const response =
-                await userService.unblockUser(userId, 2);
+                await userService.unblockUser(userId, startDate, endDate, 2);
 
             if (response.Success) {
 
@@ -288,9 +289,11 @@ function MartialUsers() {
                 onBlockMartial={blockMartialUser}
                 onUnblockMartial={unblockMartialUser}
 
-                // Dummy handlers for unused Gym actions
+                // Gym actions not used on this page
                 onBlockGym={() => {}}
                 onUnblockGym={() => {}}
+                onDeleteGymUser={() => {}}
+                onDeleteMartialUser={() => {}}
 
                 showGymActions={false}
                 showMartialActions={true}

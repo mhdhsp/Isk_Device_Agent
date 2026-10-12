@@ -23,16 +23,19 @@ namespace Isk.API.Services
         {
             var members = _repository.GetExpiredMembers();
 
-            foreach (var member in members)
+            // fn_get_expired_members returns all members; skip those with nothing to process.
+            foreach (var member in members.Where(m => m.GymExpired || m.MartialExpired))
             {
                 if (member.GymExpired)
                 {
                     bool gymBlocked = _device.BlockUser(member.GymDeviceUserId, 1);
-                    if(!gymBlocked)
+
+                    if (gymBlocked)
                     {
+                        // Device block succeeded — reflect the new status in the database.
                         _repository.UpdateAccessStatus(member.UserId, 1);
-                       
                     }
+
                     _repository.SaveMembershipHistory(new MembershipAccessHistoryDto
                     {
                         UserId = member.UserId,
@@ -45,8 +48,8 @@ namespace Isk.API.Services
                         EndDate = member.GymEndDate,
                         Success = gymBlocked,
                         Message = gymBlocked
-                                 ? "Gym membership expired and device access blocked successfully."
-                                   : "Gym membership expired but device access could not be blocked.",
+                            ? "Gym membership expired and device access blocked successfully."
+                            : "Gym membership expired but device access could not be blocked.",
                         CreatedBy = "SYSTEM"
                     });
                 }
@@ -55,10 +58,12 @@ namespace Isk.API.Services
                 {
                     bool martialBlocked = _device.BlockUser(member.MartialDeviceUserId, 2);
 
-                    if(!martialBlocked)
+                    if (martialBlocked)
                     {
+                        // Device block succeeded — reflect the new status in the database.
                         _repository.UpdateAccessStatus(member.UserId, 2);
                     }
+
                     _repository.SaveMembershipHistory(new MembershipAccessHistoryDto
                     {
                         UserId = member.UserId,
@@ -71,13 +76,11 @@ namespace Isk.API.Services
                         EndDate = member.MartialEndDate,
                         Success = martialBlocked,
                         Message = martialBlocked
-                                 ? "Martial arts membership expired and device access blocked successfully."
-                                   : "Martial arts membership expired but device access could not be blocked.",
+                            ? "Martial arts membership expired and device access blocked successfully."
+                            : "Martial arts membership expired but device access could not be blocked.",
                         CreatedBy = "SYSTEM"
                     });
                 }
-
-
             }
         }
     }
